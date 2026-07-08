@@ -72,12 +72,18 @@ async function downloadVideo() {
     const author = d.author?.nickname || 'Unknown'
     const plays = (d.play_count || 0).toLocaleString()
     document.getElementById('result').innerHTML = `
-      <div class="card">
-        <div class="author">👤 ${author}</div>
+      <div class="card" style="background:#0a2a0a;border-color:#25d36640">
+        <div class="author">✅ ${author}</div>
         <div class="title">${title}</div>
-        <div class="info">▶️ ${plays} lượt xem</div>
-        <a class="dl-btn" href="${videoUrl}" download="${title}.mp4">⬇️ Tải video không logo</a>
+        <div class="info">▶️ ${plays} lượt xem | Đã tải xong!</div>
       </div>`
+    // Auto download immediately
+    const a = document.createElement('a')
+    a.href = videoUrl
+    a.download = title.replace(/[<>:"/\\|?*]/g,'') + '.mp4'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
   } catch(e) {
     document.getElementById('result').innerHTML = '<div class="error">❌ Không tải được. Kiểm tra lại link hoặc thử link khác.</div>'
   }
