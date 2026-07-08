@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>TikTok Downloader - Không Logo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#000;color:#fff;min-height:100vh}
+.container{max-width:480px;margin:0 auto;padding:20px 16px}
+.header{text-align:center;padding:40px 0 30px}
+.header h1{font-size:28px;font-weight:800;background:linear-gradient(90deg,#ff0050,#00f2ea);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.header p{color:#888;font-size:14px}
+.input-box{display:flex;gap:8px;margin-bottom:24px}
+.input-box input{flex:1;padding:14px 16px;background:#1a1a1a;border:1.5px solid #333;border-radius:14px;color:#fff;font-size:15px;outline:none}
+.input-box input:focus{border-color:#ff0050}
+.input-box button{padding:14px 20px;background:#ff0050;border:none;border-radius:14px;color:#fff;font-weight:700;font-size:15px;cursor:pointer;white-space:nowrap}
+.input-box button:active{transform:scale(.96)}
+.result{margin-top:8px}
+.card{background:#111;border:1px solid #222;border-radius:16px;padding:16px;margin-bottom:12px;animation:fadeIn .3s ease}
+.card .author{color:#00f2ea;font-weight:700;font-size:15px;margin-bottom:4px}
+.card .title{color:#ccc;font-size:13px;margin-bottom:8px;line-height:1.4}
+.card .info{color:#666;font-size:12px;margin-bottom:12px}
+.dl-btn{display:block;width:100%;padding:14px;background:#25d366;color:#fff;text-align:center;text-decoration:none;border-radius:12px;font-weight:700;font-size:15px}
+.dl-btn:active{background:#1da851}
+.hint{padding:40px 16px;text-align:center;color:#444;font-size:14px;line-height:1.8}
+.hint b{color:#666}
+.loading{text-align:center;padding:40px}
+.spinner{width:36px;height:36px;border:3px solid #333;border-top-color:#ff0050;border-radius:50%;animation:spin .6s linear infinite;margin:0 auto 12px}
+.error{background:#1a0000;border:1px solid #ff444420;border-radius:14px;padding:16px;text-align:center;color:#ff6666;font-size:14px}
+.footer{text-align:center;padding:30px;color:#333;font-size:11px;margin-top:auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>TikTok Downloader</h1>
+<p>Dán link → Tải video không logo HD</p>
+</div>
+<div class="input-box">
+<input id="url" type="text" placeholder="Dán link TikTok vào đây..." autocomplete="off">
+<button onclick="downloadVideo()">📥 Tải</button>
+</div>
+<div id="result" class="result">
+<div class="hint">
+<b>📎 Cách lấy link:</b><br>
+Mở TikTok → Share →<br>
+Copy link → Dán vào đây
+</div></div>
+<div class="footer">Video tải về không có logo • Chất lượng HD</div>
+</div>
+
+<script>
+async function downloadVideo() {
+  const url = document.getElementById('url').value.trim()
+  if (!url.includes('tiktok.com')) {
+    document.getElementById('result').innerHTML = '<div class="error">❌ Vui lòng dán link TikTok hợp lệ</div>'
+    return
+  }
+  document.getElementById('result').innerHTML = '<div class="loading"><div class="spinner"></div>Đang lấy video...</div>'
+
+  try {
+    const resp = await fetch(`https://tikwm.com/api/?url=${encodeURIComponent(url)}`)
+    const data = await resp.json()
+    if (data.code !== 0 || !data.data) throw new Error('No data')
+    const d = data.data
+    const videoUrl = d.play || d.hdplay
+    if (!videoUrl) throw new Error('No video URL')
+    const title = (d.title || 'TikTok').substring(0, 80)
+    const author = d.author?.nickname || 'Unknown'
+    const plays = (d.play_count || 0).toLocaleString()
+    document.getElementById('result').innerHTML = `
+      <div class="card">
+        <div class="author">👤 ${author}</div>
+        <div class="title">${title}</div>
+        <div class="info">▶️ ${plays} lượt xem</div>
+        <a class="dl-btn" href="${videoUrl}" download="${title}.mp4">⬇️ Tải video không logo</a>
+      </div>`
+  } catch(e) {
+    document.getElementById('result').innerHTML = '<div class="error">❌ Không tải được. Kiểm tra lại link hoặc thử link khác.</div>'
+  }
+}
+document.getElementById('url').addEventListener('keydown', e => { if(e.key==='Enter') downloadVideo() })
+</script>
+</body>
+</html>
