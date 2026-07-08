@@ -75,15 +75,25 @@ async function downloadVideo() {
       <div class="card" style="background:#0a2a0a;border-color:#25d36640">
         <div class="author">✅ ${author}</div>
         <div class="title">${title}</div>
-        <div class="info">▶️ ${plays} lượt xem | Đã tải xong!</div>
+        <div class="info">▶️ ${plays} lượt xem | Đang tải...</div>
       </div>`
-    // Auto download immediately
+    // Fetch as blob to force download (bypasses TikTok CDN inline behavior)
+    const blobResp = await fetch(videoUrl)
+    const blob = await blobResp.blob()
+    const blobUrl = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = videoUrl
+    a.href = blobUrl
     a.download = title.replace(/[<>:"/\\|?*]/g,'') + '.mp4'
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
+    URL.revokeObjectURL(blobUrl)
+    document.getElementById('result').innerHTML = `
+      <div class="card" style="background:#0a2a0a;border-color:#25d36640">
+        <div class="author">✅ ${author}</div>
+        <div class="title">${title}</div>
+        <div class="info">▶️ ${plays} lượt xem | Đã tải xong!</div>
+      </div>`
   } catch(e) {
     document.getElementById('result').innerHTML = '<div class="error">❌ Không tải được. Kiểm tra lại link hoặc thử link khác.</div>'
   }
