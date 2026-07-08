@@ -77,8 +77,9 @@ async function downloadVideo() {
         <div class="title">${title}</div>
         <div class="info">▶️ ${plays} lượt xem | Đang tải...</div>
       </div>`
-    // Fetch as blob to force download (bypasses TikTok CDN inline behavior)
-    const blobResp = await fetch(videoUrl)
+    // Fetch via CORS proxy to bypass TikTok CDN restriction
+    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(videoUrl)
+    const blobResp = await fetch(proxyUrl)
     const blob = await blobResp.blob()
     const blobUrl = URL.createObjectURL(blob)
     const a = document.createElement('a')
