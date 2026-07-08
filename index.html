@@ -77,24 +77,36 @@ async function downloadVideo() {
         <div class="title">${title}</div>
         <div class="info">▶️ ${plays} lượt xem | Đang tải...</div>
       </div>`
-    // Fetch via CORS proxy to bypass TikTok CDN restriction
-    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(videoUrl)
-    const blobResp = await fetch(proxyUrl)
-    const blob = await blobResp.blob()
-    const blobUrl = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = blobUrl
-    a.download = title.replace(/[<>:"/\\|?*]/g,'') + '.mp4'
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(blobUrl)
-    document.getElementById('result').innerHTML = `
-      <div class="card" style="background:#0a2a0a;border-color:#25d36640">
-        <div class="author">✅ ${author}</div>
-        <div class="title">${title}</div>
-        <div class="info">▶️ ${plays} lượt xem | Đã tải xong!</div>
-      </div>`
+    // Try auto-download via blob
+    try {
+      const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(videoUrl)
+      const blobResp = await fetch(proxyUrl)
+      const blob = await blobResp.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = blobUrl
+      a.download = title.replace(/[<>:"/\\|?*]/g,'') + '.mp4'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(blobUrl)
+      document.getElementById('result').innerHTML = `
+        <div class="card" style="background:#0a2a0a;border-color:#25d36640">
+          <div class="author">✅ ${author}</div>
+          <div class="title">${title}</div>
+          <div class="info">▶️ ${plays} lượt xem | Đã tải xong!</div>
+        </div>`
+    } catch(e) {
+      // Fallback: show manual download button
+      document.getElementById('result').innerHTML = `
+        <div class="card">
+          <div class="author">👤 ${author}</div>
+          <div class="title">${title}</div>
+          <div class="info">▶️ ${plays} lượt xem</div>
+          <a class="dl-btn" href="${videoUrl}" download>⬇️ Nhấn vào đây để tải</a>
+          <div style="color:#888;font-size:11px;margin-top:8px;text-align:center">
+            Nếu không tự tải, nhấn giữ link trên rồi chọn "Tải xuống"</div>
+        </div>`
   } catch(e) {
     document.getElementById('result').innerHTML = '<div class="error">❌ Không tải được. Kiểm tra lại link hoặc thử link khác.</div>'
   }
