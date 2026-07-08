@@ -71,14 +71,15 @@ async function downloadVideo() {
     const title = (d.title || 'TikTok').substring(0, 80)
     const author = d.author?.nickname || 'Unknown'
     const plays = (d.play_count || 0).toLocaleString()
+    const isLocal = location.hostname === 'localhost' || location.hostname.startsWith('192.168')
+    const dlUrl = isLocal ? `/download?url=${encodeURIComponent(videoUrl)}` : videoUrl
     document.getElementById('result').innerHTML = `
       <div class="card">
         <div class="author">👤 ${author}</div>
         <div class="title">${title}</div>
         <div class="info">▶️ ${plays} lượt xem</div>
-        <a class="dl-btn" href="${videoUrl}" download>⬇️ TẢI VIDEO KHÔNG LOGO</a>
-        <div style="color:#666;font-size:11px;margin-top:10px;text-align:center">
-          💡 <b>Nhấn giữ nút trên</b> → Chọn "Tải xuống"</div>
+        <a class="dl-btn" href="${dlUrl}" download>⬇️ TẢI VIDEO KHÔNG LOGO</a>
+        ${isLocal ? '' : '<div style="color:#666;font-size:11px;margin-top:10px;text-align:center">💡 <b>Nhấn giữ nút trên</b> → Chọn "Tải xuống"</div>'}
       </div>`
   } catch(e) {
     document.getElementById('result').innerHTML = '<div class="error">❌ Không tải được. Kiểm tra lại link hoặc thử link khác.</div>'
